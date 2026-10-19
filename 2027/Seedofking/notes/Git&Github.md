@@ -284,9 +284,25 @@ upstream = 远程仓库上对应的那条分支
 ##### 进入仓库, 在上面一栏中找到设置
 ![进入仓库设置](https://beeimg.us.ci/temp/6ad59fc6542cf.png "进入仓库设置")
 
-##### 在设置中一直往下滑, 最下面的danger zone中就有删除仓库(不可恢复)
+##### 在设置中一直往下滑, 最下面的Danger Zone中就有删除仓库(不可恢复)
 ![删除仓库](https://beeimg.us.ci/temp/6ad5a08251fa5.png "删除仓库")
 
+### 团队协作:
 
+#### 创建分支:
+###### 团队协作时若自己没有仓库的推送权限, 则需要用Fork创建分支, 若有则可以直接先pull再push至仓库
+###### fork分支的作用是将别人的仓库复制一份到自己的仓库, 这样就可以在git clone编辑后通过pull request申请合并到别人仓库
+###### 若直接git clone别人的仓库, 只是把代码复制到本机, 没有复制为自己仓库, 则不能推送和申请PR
+
+##### 申请fork:
+![fork](https://beeimg.us.ci/temp/6ad5e0fb8db4f.png "fork")
+
+##### 申请了fork之后可以在自己仓库找到, 找到再克隆到本机即可, 之后就会在remote绑定该仓库
+![clone](https://beeimg.us.ci/temp/6ad5e15781599.png "clone")
+
+##### 申请pull request
+###### 如果有冲突需要自己处理, 或者联系仓库持有者拉取自己仓库进行修改、请求指导如何修改, 不可以提交带有冲突的PR
+###### 仓库持有者通过了Merge之后, 自己的PR就可以进入持有者的仓库中
+![PR](https://beeimg.us.ci/temp/6ad5e56722d9c.png "PR")
 
 
