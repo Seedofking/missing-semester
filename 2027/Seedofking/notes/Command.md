@@ -22,15 +22,35 @@
     cd ..							
 
 
-### 创建:
+### 文件操作:
+
+#### 创建:
 ##### 在当前目录创建xxx文件
     mkdir xxx					
 ##### 在 /home/seed/文档/ 地址下创建名为Ohyeah的文件	
     mkdir /home/seed/文档/Ohyeah	
 ##### 在当前目录创建名为xxx的.txt文件
     touch xxx.txt					
-##### 在 /地址 下创建名为xxx的.txt文件	
-    touch /地址/xxx.txt					
+##### 在 /地址 下创建名为xxx的.txt文件, 若已存在则可以更新文件时间
+    touch /地址/xxx.txt				
+
+#### 复制:
+    cp hello.txt hello-copy.txt
+
+#### 移动或重命名:
+
+##### 重命名文件
+    mv hello.txt hello-yeh.txt
+
+##### 移动文件到另一个目录:
+###### 已在该目录的文件前路径可省略, 移动到另一个目录注意是 路径/ , 最后空着表示目录
+    mv file.txt /home/user/documents
+    mv mv /home/seed/文档/Markdown/Markdown_Library.md /home/seed/文档/命令/
+##### 移动并重命名:
+    mv file.txt /home/user/documents/newfilename.txt
+##### 移动多个文件到目录:
+    mv a.txt b.txt c.txt /home/user/
+
 
 ### 命令行环境
 ###### 值得注意的是, shell不会保存别名, 如果想让别名持续生效, 就需要放进 .bashrc 或者 .zshrc
@@ -56,7 +76,8 @@
     echo $(name)
 
 #### 重定向
-    echo "hello"    hello.txt				#>覆盖写入; >>在末尾追加
+    echo "hello" > hello.txt				#>覆盖写入; >>在末尾追加
+    echo "world" >> hello.txt
 
 #### 管道 
     ls -la grep txt						#将输出交给下一个程序
@@ -86,3 +107,12 @@
 #### 5.可直接解压运行的文件:
     右键解压, 进入bin内, 打开终端
     ./xxx.sh			#直接使用命令运行该程序
+
+
+## Vim
+#### 打开Vim编辑flie(若已存在, 不存在就会创建): 
+    Vim file
+
+##### 进入Vim之后, 先按 i , 即可开始编辑
+##### 编辑之后, 按Esc退出编辑模式, 进入普通模式
+##### 按wq保存并退出, 按q!不保存并退出
