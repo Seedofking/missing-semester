@@ -86,18 +86,22 @@
 
 #### 3.启动容器:
 ```
-docker rm -f ros_noetic
+
 docker run -it \
 --name ros_noetic \
 --net=host --ipc=host \
 --device=/dev/dri:/dev/dri \
 -e DISPLAY=$DISPLAY \
 -e QT_X11_NO_MITSHM=1 \
+-e QT_QPA_PLATFORM=xcb \
+-e XAUTHORITY=/tmp/docker.xauth \
 -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+-v /tmp/docker.xauth:/tmp/docker.xauth:ro \
 -v ~/catkin_ws:/root/catkin_ws \
 -v ~/.gazebo:/root/.gazebo \
-osrf/ros:noetic-desktop-full \
+noetic-intel-gpu \
 bash
+
   ```
 
 #### 4.容器内安装开发与仿真工具:
@@ -166,6 +170,19 @@ apt install -y python3-catkin-tools build-essential gdb
 
 #### 强制立即停止容器
 `docker kull 容器名`
+
+#### 删除容器
+`docker rm 容器名或id`
+
+#### 强制删除运行中的容器
+`docker rm -f 容器名或id`
+
+#### 批量清理所有停止的容器
+`docker container prune`
+
+#### 删除镜像
+`docker rmi 镜像名或id`
+
 
 ### 内容传输：
 ###### 在容器内无法与主机共享剪贴板
