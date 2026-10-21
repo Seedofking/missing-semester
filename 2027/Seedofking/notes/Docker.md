@@ -151,8 +151,8 @@ apt install -y python3-catkin-tools build-essential gdb
 `docker start -ai ros_noetic`
 
 #### 进入在后台运行的容器, 常用与终端已被关闭:
-`docker exec it 容器名 bash`
-`docker exec it ros_noetic bash`
+`docker exec -it 容器名 bash`
+`docker exec -it ros_noetic bash`
 
 #### 重启SSH服务:
 `service ssh start`
@@ -166,6 +166,14 @@ apt install -y python3-catkin-tools build-essential gdb
 
 #### 强制立即停止容器
 `docker kull 容器名`
+
+### 内容传输：
+###### 在容器内无法与主机共享剪贴板
+##### 文件移动：
+    docker cp 容器名或id:/容器文件路径 /主机文件路径
+    docker cp ros_noetic:/root/.tmux.conf /home/seed/.tmux.conf
+
+
 
 ### 下载：
 #### 若下载的是源码包(github)：
@@ -183,6 +191,7 @@ apt install -y python3-catkin-tools build-essential gdb
 
 #### 已在容器中下载的软件包：
 sudo apt install ros-noetic-rqt-robot-steering
+apt update && apt install -y tmux
 
 
 
