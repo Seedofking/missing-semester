@@ -207,8 +207,8 @@ apt install -y python3-catkin-tools build-essential gdb
 
 
 #### 已在容器中下载的软件包：
-sudo apt install ros-noetic-rqt-robot-steering
-apt update && apt install -y tmux
+sudo apt install ros-noetic-rqt-robot-steering(noetic_intel_gpu 已包含)
+apt update && apt install -y tmux(noetic_intel_gpu 已包含)
 
 
 
