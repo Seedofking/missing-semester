@@ -167,6 +167,23 @@ apt install -y python3-catkin-tools build-essential gdb
 #### 强制立即停止容器
 `docker kull 容器名`
 
+### 下载：
+#### 若下载的是源码包(github)：
+建议安装在主机的catkin_ws/src中，以便修改的代码仍然存在
+
+#### 若下载的是二进制包(apt install):
+    sudo apt install ros-noetic-xxx
+需要下载进容器的ros目录内，且不需要关心下载到哪个文件夹
+不过这些部分会随着容器的删除而消失，需要保留镜像和记录安装命令
+
+#### ros软件包下载：
+###### 可在https://index.ros.org中上面的packege list，选择noetic版本，再去查找软件包，点进去后可在website里面查看介绍
+    sudo apt install ros-noetic-软件包名    
+
+
+#### 已在容器中下载的软件包：
+sudo apt install ros-noetic-rqt-robot-steering
+
 
 
 
