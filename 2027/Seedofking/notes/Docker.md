@@ -148,6 +148,10 @@ apt install -y python3-catkin-tools build-essential gdb
 `docker commit 容器名 镜像名`
 `docker commit ros_noetic ros_noetic_clion`
 
+#### 6.1 将镜像导出
+`docker save -o 导出的.tar文件路径 镜像`
+`docker save -o ~/Docker/noetic-intel-gpu.tar noetic-intel-gpu`
+
 ## 后续使用
 
 #### 启动容器:
