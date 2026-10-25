@@ -305,4 +305,22 @@ upstream = 远程仓库上对应的那条分支
 ###### 仓库持有者通过了Merge之后, 自己的PR就可以进入持有者的仓库中
 ![PR](https://beeimg.us.ci/temp/6ad5e56722d9c.png "PR")
 
+#### 从fork的原仓库更新改动:
 
+##### 1.查看当前远程仓库配置:
+    git remote -v
+###### 通常能看见origin指向自己的fork, 如果没有upstream(原作者仓库), 则需要添加:
+    git remote add upstream 原仓库URL
+    git remote add upstream git@github.com:OceanCing/missing-semester.git
+
+##### 2.拉取原仓库最新内容:
+    git fetch upstream
+
+##### 3.切换回主分支:
+    git checkout main  or  master
+
+##### 4.合并原仓库的更新到本地
+    git merge upstream/main  or upstream/master
+
+##### 5.推送到自己的fork
+    git push origin main  or  master

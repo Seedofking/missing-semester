@@ -1,18 +1,74 @@
 ### 编译过程
-1. 预处理：将.h文件复制到.cpp, 并且展开include部分的代码 .i
-2. 编译: 生成汇编代码 .s
-3. 汇编: 生成二进制文件 .o
-4. 链接: 生成可执行文件
+1. 预处理：删除注释, 展开宏定义和\#include的代码, 将.h文件复制到.cpp, 处理\#endif等预编译指令 .i
+2. 编译: 将预处理后的.i文件生成汇编代码 .s
+3. 汇编: 将汇编后的.s文件生成二进制文件 .o
+4. 链接: 将多个二进制文件.o链接在一起, 生成可执行文件
 ###### 在有多个源代码的时候可以实现文件的增量更改, 即单独构建指定的文件, 已构建的其他文件可以不构建
 
+### 静态链接与动态链接
+
+#### 概念:
+
+**静态链接**：编译阶段把库代码（`libfoo.a`）直接复制进可执行文件，运行时不再依赖库文件。
+**动态链接**：编译时只记录对共享库（`.so`/`.dll`）的引用，运行时由动态链接器加载并解析符号。
+
+#### 区别
+
+| 维度 | 静态链接 | 动态链接 |
+|---|---|---|
+| 链接时机 | 编译期 | 运行期 |
+| 可执行文件 | 大 | 小 |
+| 运行时依赖 | 无 | 需对应共享库 |
+| 内存占用 | 每进程一份 | 多进程共享 |
+| 库更新 | 需重新编译 | 替换 `.so` 即可 |
+| 启动速度 | 较快 | 略慢 |
+| 部署 | 单文件即可 | 需保证库版本 |
+
+#### 优劣
+
+**静态链接**
+- 优点：部署简单、运行稳定可预测、启动略快、便于跨模块优化。
+- 缺点：体积大、更新困难、内存无法共享、GPL 库可能触发传染条款。
+
+**动态链接**
+- 优点：省磁盘和内存、库易升级、支持插件机制、可执行文件小。
+- 缺点：依赖管理复杂（版本冲突、`DLL` 地狱）、启动有开销、ABI 不兼容会运行失败、库被替换有安全风险。
+
+#### 四、使用场景
+
+**静态链接**：嵌入式、容器镜像、单文件分发工具（如 Go 默认）、要求启动和确定性高的场景。
+**动态链接**：常规桌面/服务器程序、系统基础库（glibc）、需热更新或插件化的软件。
+
+#### 总结
+静态链接是把库固定死在程序里，换来部署简单和运行确定，代价是体积和更新成本；动态链接是运行时按需拼装，换来空间节省和易升级，代价是依赖管理和兼容性复杂度。实际工程常混合使用：核心稳定部分静态链接，通用/需升级部分动态链接。
+
+
+### 用指令实现编译
+###### 要先进入.cpp文件所在目录
+
+#### 一步到位: `g++ helloworld.cpp -o helloworld`
+#### 运行: `./helloworld`
+
+#### 分步编译:
+##### 1.预处理:
+    g++ -E helloworld.cpp -o helloworld.i
+
+##### 2.编译:
+    g++ -S helloworld.i -o helloworld.s
+
+##### 3.汇编:
+    g++ -c helloworld.s -o helloworld.o
+
+##### 4.链接:
+    g++ helloworld.o -o helloworld
+
+##### 5.运行:
+    ./helloworld
 
 
 
 
-
-
-
-### 该笔记由一个CMakeList.txt改为md, 既是可运行代码也是笔记
+### 该笔记由一个C++可执行项目的CMakeList.txt改为md, 既是可运行代码也是笔记
 
 ``` cmake
 
@@ -88,4 +144,247 @@ add_library(自己取的库名称，文件如main.cpp) 将后面的文件生成�
 target_link_libraries(工程名PROJECT_NAME，库名称)  给工程链接一个库，使用之前要先用link_directories暴露库路径
 
 ]]
+```
+
+## Catkin的CMakeLists.txt
+
+``` cmake
+cmake_minimum_required(VERSION 3.0.2)
+project(dm1)
+
+## Compile as C++11, supported in ROS Kinetic and newer
+# add_compile_options(-std=c++11)
+
+## Find catkin macros and libraries
+## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
+## is used, also find other catkin packages
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  rospy
+  std_msg
+)
+
+## System dependencies are found with CMake's conventions
+# find_package(Boost REQUIRED COMPONENTS system)
+
+
+## Uncomment this if the package has a setup.py. This macro ensures
+## modules and global scripts declared therein get installed
+## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
+# catkin_python_setup()
+
+################################################
+## Declare ROS messages, services and actions ##
+################################################
+
+## To declare and build messages, services or actions from within this
+## package, follow these steps:
+## * Let MSG_DEP_SET be the set of packages whose message types you use in
+##   your messages/services/actions (e.g. std_msgs, actionlib_msgs, ...).
+## * In the file package.xml:
+##   * add a build_depend tag for "message_generation"
+##   * add a build_depend and a exec_depend tag for each package in MSG_DEP_SET
+##   * If MSG_DEP_SET isn't empty the following dependency has been pulled in
+##     but can be declared for certainty nonetheless:
+##     * add a exec_depend tag for "message_runtime"
+## * In this file (CMakeLists.txt):
+##   * add "message_generation" and every package in MSG_DEP_SET to
+##     find_package(catkin REQUIRED COMPONENTS ...)
+##   * add "message_runtime" and every package in MSG_DEP_SET to
+##     catkin_package(CATKIN_DEPENDS ...)
+##   * uncomment the add_*_files sections below as needed
+##     and list every .msg/.srv/.action file to be processed
+##   * uncomment the generate_messages entry below
+##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
+
+## Generate messages in the 'msg' folder
+# add_message_files(
+#   FILES
+#   Message1.msg
+#   Message2.msg
+# )
+
+## Generate services in the 'srv' folder
+# add_service_files(
+#   FILES
+#   Service1.srv
+#   Service2.srv
+# )
+
+## Generate actions in the 'action' folder
+# add_action_files(
+#   FILES
+#   Action1.action
+#   Action2.action
+# )
+
+## Generate added messages and services with any dependencies listed here
+# generate_messages(
+#   DEPENDENCIES
+#   std_msgs  # Or other packages containing msgs
+# )
+
+################################################
+## Declare ROS dynamic reconfigure parameters ##
+################################################
+
+## To declare and build dynamic reconfigure parameters within this
+## package, follow these steps:
+## * In the file package.xml:
+##   * add a build_depend and a exec_depend tag for "dynamic_reconfigure"
+## * In this file (CMakeLists.txt):
+##   * add "dynamic_reconfigure" to
+##     find_package(catkin REQUIRED COMPONENTS ...)
+##   * uncomment the "generate_dynamic_reconfigure_options" section below
+##     and list every .cfg file to be processed
+
+## Generate dynamic reconfigure parameters in the 'cfg' folder
+# generate_dynamic_reconfigure_options(
+#   cfg/DynReconf1.cfg
+#   cfg/DynReconf2.cfg
+# )
+
+###################################
+## catkin specific configuration ##
+###################################
+## The catkin_package macro generates cmake config files for your package
+## Declare things to be passed to dependent projects
+## INCLUDE_DIRS: uncomment this if your package contains header files
+## LIBRARIES: libraries you create in this project that dependent projects also need
+## CATKIN_DEPENDS: catkin_packages dependent projects also need
+## DEPENDS: system dependencies of this project that dependent projects also need
+catkin_package(
+#  INCLUDE_DIRS include
+#  LIBRARIES dm1
+#  CATKIN_DEPENDS roscpp rospy std_msg
+#  DEPENDS system_lib
+)
+
+###########
+## Build ##
+###########
+
+## Specify additional locations of header files
+## Your package locations should be listed before other locations
+include_directories(
+# include
+  ${catkin_INCLUDE_DIRS}
+)
+
+## Declare a C++ library
+# add_library(${PROJECT_NAME}
+#   src/${PROJECT_NAME}/dm1.cpp
+# )
+
+## Add cmake target dependencies of the library
+## as an example, code may need to be generated before libraries
+## either from message generation or dynamic reconfigure
+# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+```
+```
+
+## Declare a C++ executable
+## With catkin_make all packages are built within a single CMake context
+## The recommended prefix ensures that target names across packages don't collide
+# add_executable(${PROJECT_NAME}_node src/dm1_node.cpp)
+
+```
+### ↑添加可执行文件:
+#### 这里的 `add_executable(${PROJECT_NAME}_node src/dm1_node.cpp)`可以复制放在文件末尾
+#### 就可以给这个包的工程取名和添加可执行文件
+
+```
+
+## Rename C++ executable without prefix
+## The above recommended prefix causes long target names, the following renames the
+## target back to the shorter version for ease of user use
+## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
+# set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME node PREFIX "")
+
+## Add cmake target dependencies of the executable
+## same as for the library above
+# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+```
+```
+
+## Specify libraries to link a library or executable target against
+# target_link_libraries(${PROJECT_NAME}_node
+#   ${catkin_LIBRARIES}
+# )
+
+```
+### ↑添加需要编译的库:
+    # target_link_libraries(${PROJECT_NAME}_node
+    #   ${catkin_LIBRARIES}
+    # )
+#### 复制到文件尾就可以让include的库被加入编译
+
+```
+
+#############
+## Install ##
+#############
+
+# all install targets should use catkin DESTINATION variables
+# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
+
+## Mark executable scripts (Python etc.) for installation
+## in contrast to setup.py, you can choose the destination
+# catkin_install_python(PROGRAMS
+#   scripts/my_python_script
+#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
+
+## Mark executables for installation
+## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
+# install(TARGETS ${PROJECT_NAME}_node
+#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
+
+## Mark libraries for installation
+## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
+# install(TARGETS ${PROJECT_NAME}
+#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+# )
+
+## Mark cpp header files for installation
+# install(DIRECTORY include/${PROJECT_NAME}/
+#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+#   FILES_MATCHING PATTERN "*.h"
+#   PATTERN ".svn" EXCLUDE
+# )
+
+## Mark other files for installation (e.g. launch and bag files, etc.)
+# install(FILES
+#   # myfile1
+#   # myfile2
+#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+# )
+
+#############
+## Testing ##
+#############
+
+## Add gtest based cpp test target and link libraries
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_dm1.cpp)
+# if(TARGET ${PROJECT_NAME}-test)
+#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
+# endif()
+
+## Add folders to be run by python nosetests
+# catkin_add_nosetests(test)
+
+---------------------------------------------------------------
+
+add_executable(${PROJECT_NAME}_node src/dm1_node.cpp) # 默认工程名
+add_executable(AAAAADM1_node src/dm1_node.cpp) # 自己起名
+
+target_link_libraries(${PROJECT_NAME}_node
+${catkin_LIBRARIES}
+)
+
 ```

@@ -77,7 +77,7 @@
 ## 创建ros容器过程:
 
 #### 1.让图形化可用:
-###### 在1ubuntu登录界面切换为Xorg
+###### 将xhost +SI:localuser:root添加进宿主机.bashrc
 
 #### 2.挂载工作空间:
 >在宿主机建立目录, 这样在容器里 /root/catkin_ws 下的代码，在宿主机 ~/catkin_ws 里也能直接访问
@@ -118,7 +118,7 @@ apt install -y python3-catkin-tools build-essential gdb
 ##### 5.2为root用户设置一个密码用于连接:
 `passwd root`
 
-##### 5.3启动SSH服务:
+##### 5.3在容器内启动SSH服务:
 `service ssh start`
 
 ##### 5.4去JetBrains官网下载Gateway客户端
@@ -143,6 +143,9 @@ apt install -y python3-catkin-tools build-essential gdb
 连接成功后，在 IDE Version 下拉框中选择 CLion。
 在项目路径中填入容器内的路径，例如 /root/catkin_ws。
 点击 Start IDE and Connect。Gateway 会自动在容器内下载并启动 CLion 后端，然后打开项目窗口。
+
+##### 5.7设置clion远程工具链
+在 设置/构建、执行、部署/工具链 选项栏右边, 将CMake选择为ros系统的CMake, 否则clion默认版本CMake会过高
 
 #### 6. 将现有容器保存为镜像
 `docker commit 容器名 镜像名`
@@ -193,6 +196,10 @@ apt install -y python3-catkin-tools build-essential gdb
 ##### 文件移动：
     docker cp 容器名或id:/容器文件路径 /主机文件路径
     docker cp ros_noetic:/root/.tmux.conf /home/seed/.tmux.conf
+
+##### 带有软链接(比如catkin构造的CMakeLists.txt)的复制:
+    docker cp -L 容器名或id:/容器文件路径 /主机文件路径
+    docker cp -L ros_noetic:/catkin_wst/dm1/CMakeLists.txt ~/CM1.txt
 
 
 
