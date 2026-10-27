@@ -231,10 +231,11 @@ int main(int argc, char **argv)
 #### 类型:std_msgs::String是消息类, data是其一个成员变量
 #### 赋值:std_msgs::String msg; msg.data = "YEAH";即可为msg赋值
 
-#### 日志信息打印
+#### ROS_INFO日志信息打印
 ##### C语言格式化显示风格:(.c_str可以把string转为字符数组)
     ROS_INFO("%s", msg.data.c_str);
 ##### 流式显示:(可以直接显示string)
     ROS_INFO_STREAM(msg.data);
 
-
+#### ROS_WARN打印
+    ROS_WARN(msg.data.c_str)
