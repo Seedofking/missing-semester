@@ -25,9 +25,6 @@ ros消息的字段名也是固定的
 
 # ROS Command
 
-#### 查看软件包地址
-    roscd roscpp
-
 ### 启动一个ROS节点
 
 #### 0.为.bashrc添加环境变量
@@ -45,14 +42,33 @@ ros消息的字段名也是固定的
 2.检查是否已经有 rose_ws/devel/lib/rosetest_pkg/rosetest_pkg/rosetest_pkg_node
 3.可能需要重新source opt/ros/noetic/setup.bash 和 source /rose_ws/devel/setup.bash
 
+
+### 查看
+
+#### 查看软件包地址
+    roscd roscpp
+#### 查看正在运行的节点
+    rosnode list
+#### 查看一个节点的详情(向谁发布, 被谁订阅)
+
+
+### 管理
+#### 关掉一个节点
+    rosnode kill /节点名
+
+
 ### 话题指令
 #### 列出当前正在活跃的话题
     rostopic list
+#### 图形化显示话题关系
+    rqt_graph
 #### 查看话题消息内容
     rostopic echo /话题名
 ###### (若是中文, 则需要将输出的字符用`echo -e "字符"`来转换显示)
 #### 查看话题发送频率
     rostopic hz /话题名
+
+
 
 
 
@@ -104,7 +120,21 @@ arg[0] = rosrun, argv[1] = my_pkg argv[2] = my_node argv[3] = __name:=hello
 ###### 会在循环执行时间的基础上继续休眠0.5秒
 
 ## Topic
-##### 例:
+
+### NodeHandle
+##### 作用：NodeHandle 是一个节点向Master注册自己、声明名字和要发布、订阅哪些话题的操作句柄
+##### 参数：`ros::NodeHandle nh("robot1");`可以指定该节点作用的ros命名空间为/robot1, 默认为/全局命名空间
+##### 创建通信对象：通过其成员函数advertise(), subscribe(), serviceClient(), param()等创建发布者, 订阅者, 服务客户端, 读取参数 
+
+
+### Publilsher
+#### 类型:Publisher是roscpp里的一个类, 内部持有话题名, 消息类型, 队列等状态, 提供publish()方法
+#### 初始化:`ros::Publisher pub = nh.advertise<std_msgs::Srring>("TopicY", 10);`
+#### 初始化的含义:
+pub = nh.advertise是一个拷贝初始化, nh.advertise返回Publisher类型的对象, 用于指定pub将要发布的消息类型为std_msgs::String, 指定pub发布的话题名为TopicY, 发布消息的缓存队列为10, 即指定的发送速度大于ROS底层可支持的发布速度时, 最多缓存10条信息, 超过10条是会丢弃最旧的信息
+#### 方法:publish:`pub.publish(msg);`可以把msg交给ros底层去发送
+
+##### 发布者例:
 ``` cpp
 
 #include <ros/ros.h>
@@ -133,18 +163,67 @@ int main(int argc, char *argv[])
 }
 
 ```
-### NodeHandle
-##### 作用：NodeHandle 是一个节点向Master注册自己、声明名字和要发布、订阅哪些话题的操作句柄
-##### 参数：`ros::NodeHandle nh("robot1");`可以指定该节点作用的ros命名空间为/robot1, 默认为/全局命名空间
-##### 创建通信对象：通过其成员函数advertise(), subscribe(), serviceClient(), param()等创建发布者, 订阅者, 服务客户端, 读取参数 
 
-
-### Publilsher
-#### 类型:Publisher是roscpp里的一个类, 内部持有话题名, 消息类型, 队列等状态, 提供publish()方法
-#### 初始化:`ros::Publisher pub = nh.advertise<std_msgs::Srring>("TopicY", 10);`
+### Subscriber
+#### 类型:一个类, 内部持有话题名, 消息类型, 回调队列等状态, 提供回调注册与消息处理机制
+#### 初始化:`ros::Subscriber sub = nh.subscribe("TopicY", 10, callback)
 #### 初始化的含义:
-pub = nh.advertise是一个拷贝初始化, nh.advertise返回Publisher类型的变量, 用于指定pub将要发布的消息类型为std_msgs::String, 指定pub发布的话题名为TopicY, 发布消息的缓存队列为10, 即指定的发送速度大于ROS底层可支持的发布速度时, 最多缓存10条信息, 超过10条是会丢弃最旧的信息
-#### 方法:publish:`pub.publish(msg);`可以把msg交给ros底层去发送
+nh.subscribe()返回Subscriber类型的对象, 其订阅的话题名为"TopicY", 缓存的长度为10, 会丢弃先到达的超出数据包, callback是需要自己定义的回调函数
+#### 方法:回调机制:
+##### 当TopicY上有消息到达时, ros底层就会自动接收消息, 并存进队列等待回调函数处理
+##### 每在循环里调用一次ros::spinOnce, 就会执行一次回调函数callback(type msg)
+
+
+##### 接收者例:
+
+``` cpp
+
+#include <ros/ros.h>
+#include <std_msgs/String.h>
+#include <sstream>
+
+//回调函数
+void Sub_Callback(std_msgs::String msg)
+{
+    std::stringstream ss;
+    ss << "Sub_Callback is working: " << msg.data;
+    std::cout << ss.str() << std::endl;
+
+    ROS_INFO("%s", msg.data.c_str());
+}
+
+void Sub_Callback_Pub2(std_msgs::String msg)
+{
+    std::stringstream ss;
+    ss << "Sub_Callback_Pub2 is working: " << msg.data;
+    std::cout << ss.str() << std::endl;
+
+    ROS_INFO("%s", msg.data.c_str());
+}
+
+int main(int argc, char **argv)
+{
+    std::cout << "Rosetest Sub is listening" << std::endl;
+
+    ros::init(argc, argv, "rosetestsub_pkg_node");
+    ros::NodeHandle nh;
+
+    ros::Subscriber sub = nh.subscribe("TopicY", 10, Sub_Callback);
+    ros::Subscriber sub2 = nh.subscribe("Topic2", 10, Sub_Callback_Pub2);
+
+    while (ros::ok())
+    {
+        ros::spinOnce();
+    }
+    return 0;
+}
+
+```
+
+
+
+
+
 
 
 ### Message
@@ -152,6 +231,10 @@ pub = nh.advertise是一个拷贝初始化, nh.advertise返回Publisher类型的
 #### 类型:std_msgs::String是消息类, data是其一个成员变量
 #### 赋值:std_msgs::String msg; msg.data = "YEAH";即可为msg赋值
 
-
+#### 日志信息打印
+##### C语言格式化显示风格:(.c_str可以把string转为字符数组)
+    ROS_INFO("%s", msg.data.c_str);
+##### 流式显示:(可以直接显示string)
+    ROS_INFO_STREAM(msg.data);
 
 
