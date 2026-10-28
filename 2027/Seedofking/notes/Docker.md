@@ -87,20 +87,28 @@
 #### 3.启动容器:
 ```
 
-docker run -it \
---name ros_noetic \
---net=host --ipc=host \
---device=/dev/dri:/dev/dri \
--e DISPLAY=$DISPLAY \
--e QT_X11_NO_MITSHM=1 \
--e QT_QPA_PLATFORM=xcb \
--e XAUTHORITY=/tmp/docker.xauth \
--v /tmp/.X11-unix:/tmp/.X11-unix:rw \
--v /tmp/docker.xauth:/tmp/docker.xauth:ro \
--v ~/catkin_ws:/root/catkin_ws \
--v ~/.gazebo:/root/.gazebo \
-noetic-intel-gpu \
-bash
+  docker run -it \
+    --name ros_noetic \
+    --init \
+    --net=host --ipc=host \
+    --cap-add=SYS_PTRACE \
+    --device=/dev/dri:/dev/dri \
+    --device-cgroup-rule='c 188:* rmw' \
+    --device-cgroup-rule='c 166:* rmw' \
+    -e DISPLAY=$DISPLAY \
+    -e QT_X11_NO_MITSHM=1 \
+    -e QT_QPA_PLATFORM=xcb \
+    -e XAUTHORITY=/tmp/docker.xauth \
+    -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+    -v /tmp/docker.xauth:/tmp/docker.xauth:ro \
+    -v ~/catkin_wst:/root/catkin_wst \
+    -v ~/catkin_ws:/root/catkin_ws \
+    -v ~/.gazebo:/root/.gazebo \
+    -v ~/rosbags:/root/rosbags \
+    -v /dev/input:/dev/input:ro \
+    noetic-intel-gpu-1 \
+    bash
+
 
   ```
 
@@ -220,6 +228,7 @@ apt install -y python3-catkin-tools build-essential gdb
 #### 已在容器中下载的软件包：
 sudo apt install ros-noetic-rqt-robot-steering(noetic_intel_gpu 已包含)
 apt update && apt install -y tmux(noetic_intel_gpu 已包含)
+apt-get install -y xclip
 
 
 

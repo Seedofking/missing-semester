@@ -97,3 +97,18 @@ catkin_ws/
 在catkin_ws/src/test_pkg/src下, 可以开始使用clion开发代码
 catkin_ws下的src是用于存放依赖包的, 而包文件夹下的src是用于存放这个包的代码的
 写代码时先在包的CMakeLists.txt里面添加.cpp文件, 否则无法识别到外部库
+
+### 移动工程:
+###### catkin编译的产物以及ros对包的识别都是使用绝对路径的, 移动之后都会失效
+#### 0.停止所有占用进程, 如Clion远程连接, roscore, 节点
+#### 1.移动前清空构建产物, 只留源码:
+    cd /rose_ws && catkin clean -y
+#### 2.移动
+    mv 路径 新路径
+#### 3.改.bashrc里面的路径
+    source /root/rose_ws/devel/setup.bash
+#### 4.在新的位置构建
+    cd /root/rose_ws && catkin build
+#### 5.验证
+    source ~/.bashrc
+    rospack find rosetest_pkg

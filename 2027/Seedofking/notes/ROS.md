@@ -46,10 +46,17 @@ ros消息的字段名也是固定的
 ### 查看
 
 #### 查看软件包地址
+    roscd 包名
     roscd roscpp
+#### 查看有什么软件包
+    rospack list
+#### 查看有没有这个软件包
+    rospack find 软件包
+    rospack find rosetest_pkg
 #### 查看正在运行的节点
     rosnode list
 #### 查看一个节点的详情(向谁发布, 被谁订阅)
+    rosnode info /节点名
 
 
 ### 管理
