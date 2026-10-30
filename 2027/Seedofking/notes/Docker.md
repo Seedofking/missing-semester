@@ -229,6 +229,11 @@ apt install -y python3-catkin-tools build-essential gdb
 sudo apt install ros-noetic-rqt-robot-steering(noetic_intel_gpu 已包含)
 apt update && apt install -y tmux(noetic_intel_gpu 已包含)
 apt-get install -y xclip
+apt-get install -y \
+    ros-noetic-ros-control ros-noetic-ros-controllers \
+    ros-noetic-tf2-tools ros-noetic-teleop-twist-keyboard ros-noetic-teleop-twist-joy \
+    ros-noetic-plotjuggler-ros ros-noetic-joint-state-publisher-gui
+
 
 
 
